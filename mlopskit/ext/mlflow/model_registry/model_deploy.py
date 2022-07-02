@@ -26,6 +26,7 @@ class ModelDeploy(MlflowAbstractModelDataSet):
         self,
         flavor: str,
         run_id: Optional[str] = None,
+        user_id: Optional[str] = None,
         art_name: str = None,
         artifact_path: Optional[str] = "model",
         pyfunc_workflow: Optional[str] = None,
@@ -88,6 +89,7 @@ class ModelDeploy(MlflowAbstractModelDataSet):
                 self.experiment_name = experiment_name
                 self.experiment_id = self.mlflow_client.create_experiment(
                     experiment_name,
+                    user_id = user_id,
                     artifact_location=artifact_location,
                 )
             except MlflowException:

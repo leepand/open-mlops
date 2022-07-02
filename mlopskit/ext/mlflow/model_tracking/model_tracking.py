@@ -16,6 +16,7 @@ class ModelTracking(MlflowAbstractMetricDataSet):
         self,
         key: str = None,
         run_id: str = None,
+        user_id : str = None,
         experiment_name: str = None,
         artifact_location: str = None,
         mlflow_server_url :str = None,
@@ -40,6 +41,7 @@ class ModelTracking(MlflowAbstractMetricDataSet):
             try:
                 self.experiment_id = self.mlflow_client.create_experiment(
                     experiment_name,
+                    user_id = user_id,
                     artifact_location=artifact_location,
                 )
             except MlflowException:

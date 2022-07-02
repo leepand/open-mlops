@@ -37,9 +37,17 @@ def build(context):
 def serve(context):
     print("####### RUN WEB SERVER #######")
     #run("cd backend && uwsgi -s 0.0.0.0:5001 --protocol=http --module app --callable app")
+@task
+def serve_art(context):
+    print("####### RUN Artifacts SERVER #######")
+    with open('artifacts_server/run.sh',"w") as f:
+        f.write("python app.py")
+    run("cd artifacts_server && pip install -r requirements.txt \
+    && chmod +x *.sh && nohup ./run.sh >run.log 2>&1 &")
 
 
 @task
 def buildAndServe(context):
     build(context)
     serve(context)
+    serve_art(context)

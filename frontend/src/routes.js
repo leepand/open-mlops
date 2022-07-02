@@ -10,6 +10,14 @@ const AddCasePage = () => import('./views/marketing-registry/AddCasePage.vue')
 const AbTaskPage = () => import('./views/marketing-registry/AbTaskPage.vue')
 const abCaseDetails = () => import('./views/marketing-registry/abCaseDetails.vue')
 
+const ModelExperimentsPage = () => import('./views/model-tracking/ModelExperimentsPage.vue')
+const ModelTrackingPage = () => import('./views/model-tracking/ModelTrackingPage.vue')
+
+const RegisteredModelsPage = () => import('./views/model-deploy/RegisteredModelsPage.vue')
+const ModelVersionPage = () => import('./views/model-deploy/ModelVersionPage.vue')
+const ModelVersionView = () => import('./views/model-deploy/ModelVersionView.vue')
+
+
 let routes = [
   {
     path: '/login',
@@ -40,7 +48,10 @@ let routes = [
     projectHidden: true,
     leaf: true,
     children: [
-        { path: '/dashboard', component: Dashboard, iconCls: 'fa fa-database', name: '基础看板' 
+        { path: '/dashboard', 
+         component: Dashboard, 
+         iconCls: 'fa fa-database',
+         name: '基础看板' 
         }
     ]
     },
@@ -74,7 +85,45 @@ let routes = [
          iconCls: 'fa fa-database', 
          name: '实验详情' },
     ]
-  }
+    },
+    {
+    path: '/',
+    component: Home,
+    name: '',
+    iconCls: 'fa el-icon-ship',
+    projectHidden: true,
+    leaf: true,
+    children: [
+        { path: '/experiments', 
+         component: ModelExperimentsPage,
+         iconCls: 'fa el-icon-ship', 
+         name: '模型实验' },
+        { path: '/experiments/experiment=:experiment_id', 
+         component: ModelTrackingPage, 
+         name: '模型实验跟踪' }
+    ]
+    },
+    {
+    path: '/',
+    component: Home,
+    name: '',
+    iconCls: 'fa el-icon-share',
+    projectHidden: true,
+    leaf: true,
+    children: [
+        { path: '/models', 
+         component: RegisteredModelsPage,
+         iconCls: 'fa fa-cart-plus', 
+         name: '模型中心' },
+        { path: '/models/model=:model_name', 
+         component: ModelVersionPage, 
+         name: '模型版本管理' },
+        { path: '/models/model=:model_name/version=:version_id', 
+         component: ModelVersionView, 
+         name: '模型版本详情' }
+    ]
+    },
+    
 ]
 
 export default routes

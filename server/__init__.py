@@ -41,3 +41,4 @@ from .routes import login
 from .routes import users
 from .routes import campaign_registry
 from .routes import dashboard
+from .routes import model_tracking

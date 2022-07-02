@@ -43,10 +43,10 @@ start-server: ## start the local development server
 	export FLASK_APP=server; \
 	export FLASK_DEBUG=1; \
     export FLASK_RUN_HOST="0.0.0.0"; \
-    export FLASK_RUN_PORT=8080; \
+    export FLASK_RUN_PORT=5001; \
 	flask run
 start-prod: ## start the local production server
-	gunicorn --workers=3 -b 0.0.0.0:8080  server.wsgi:app >>web-predict.log;
+	gunicorn --workers=3 -b 0.0.0.0:5001  server.wsgi:app >>web-predict.log;
 
 test-models-endpoint: ## test the models endpoint
 	curl --request GET --url http://localhost:5000/api/models
@@ -118,3 +118,6 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+    
+mlops: clean ## install the package to the active Python's site-packages
+	pip install .

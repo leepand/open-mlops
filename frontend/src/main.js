@@ -126,7 +126,7 @@ router.beforeEach((to, from, next) => {
     next()
   }
   if (to.path === '/') {
-    next({ path: '/projectList' })
+    next({ path: '/dashboard' })
   }
 })
 

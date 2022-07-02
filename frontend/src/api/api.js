@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 axios.defaults.withCredentials = true // 配置为true
-let base = 'http://54.214.110.168:8080'
-export const test = 'http://54.214.110.168:8080'
+let base = 'http://127.0.0.1:5001'
+export const test = 'http://127.0.0.1:5001'
 export const delpoySocketIP = `http://54.214.110.168:8080`
 
 
@@ -51,6 +51,46 @@ export const absetWinner = (headers, params) => {
 //获取dashboard 信息
 export const getDashboardDetail = (headers, params) => {
   return axios.get(`${base}/api/dashboard/get_dashboard_info`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
+
+// 获取模型实验信息
+export const getModelExperiments = (headers, params) => {
+  return axios.get(`${base}/api/experiments/get_model_experiments`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
+// 增加模型实验
+export const addModelExperiment = (headers, params) => {
+  return axios.post(`${base}/api/experiments/add_model_experiment`, 
+                    params, 
+                    { headers }).then(res => res.data)
+}
+
+//获取所有已注册的模型信息
+export const getRegisteredModels = (headers, params) => {
+  return axios.get(`${base}/api/models/get_registered_models`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
+// 注册模型
+export const RegisterModel = (headers, params) => {
+  return axios.post(`${base}/api/models/register_model`, 
+                    params, 
+                    { headers }).then(res => res.data)
+}
+//模型详情页
+export const getModelBaseinfo = (headers, params) => {
+  return axios.get(`${base}/api/models/get_model_base_info`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
+
+//获取模型版本
+export const getModelVersions = (headers, params) => {
+  return axios.get(`${base}/api/models/get_model_versions`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
+//获取版本信息
+export const getModelVersionBaseinfo = (headers, params) => {
+  return axios.get(`${base}/api/models/get_model_base_versioninfo`, 
                    { params: params, headers: headers }).then(res => res.data)
 }
 
