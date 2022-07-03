@@ -12,6 +12,7 @@ const abCaseDetails = () => import('./views/marketing-registry/abCaseDetails.vue
 
 const ModelExperimentsPage = () => import('./views/model-tracking/ModelExperimentsPage.vue')
 const ModelTrackingPage = () => import('./views/model-tracking/ModelTrackingPage.vue')
+const ModelTrackingView = () => import('./views/model-tracking/ModelTrackingView.vue')
 
 const RegisteredModelsPage = () => import('./views/model-deploy/RegisteredModelsPage.vue')
 const ModelVersionPage = () => import('./views/model-deploy/ModelVersionPage.vue')
@@ -100,7 +101,10 @@ let routes = [
          name: '模型实验' },
         { path: '/experiments/experiment=:experiment_id', 
          component: ModelTrackingPage, 
-         name: '模型实验跟踪' }
+         name: '模型实验跟踪' },
+         { path: '/experiments/experiment=:experiment_id/runs=:run_id', 
+         component: ModelTrackingView, 
+         name: '模型实验详情' }
     ]
     },
     {

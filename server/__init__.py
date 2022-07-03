@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_httpauth import HTTPBasicAuth
+from mlflow.tracking import MlflowClient
 #from server.config import config
 from colorama import init
 from .routes import ui_routes,path_to_local_sqlite_uri
@@ -13,6 +14,7 @@ from .models import SysModelInit
 defa_db_uri = path_to_local_sqlite_uri("/Users/leepand/Downloads/codes/checkpoint.db")
 sys_db_uri = os.environ.get("DATABASE_URL", defa_db_uri)
 sql_db=SysModelInit(sys_db_uri)
+mlflow_client=MlflowClient(tracking_uri="http://0.0.0.0:8904")
 
 
 if os.name == 'nt':

@@ -65,12 +65,28 @@ export const addModelExperiment = (headers, params) => {
                     params, 
                     { headers }).then(res => res.data)
 }
+// 获取模型实验基础信息
+export const getExperimentbaseInfo = (headers, params) => {
+  return axios.get(`${base}/api/experiments/get_model_experiment`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
 
 //获取所有已注册的模型信息
 export const getRegisteredModels = (headers, params) => {
   return axios.get(`${base}/api/models/get_registered_models`, 
                    { params: params, headers: headers }).then(res => res.data)
 }
+//获取 model runs
+export const getModelRuns = (headers, params) => {
+  return axios.get(`${base}/api/experiments/get_model_runs`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
+//获取 model run
+export const getModelRun = (headers, params) => {
+  return axios.get(`${base}/api/experiments/get_model_run`, 
+                   { params: params, headers: headers }).then(res => res.data)
+}
+
 // 注册模型
 export const RegisterModel = (headers, params) => {
   return axios.post(`${base}/api/models/register_model`, 

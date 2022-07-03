@@ -4,19 +4,25 @@
             <el-col :span="6" class='inline'>
                 <el-card class="box-card">
                     <h1>{{campaign_cnt}}</h1>
-                    <div>活动总数</div>
+                    <div>营销活动总数</div>
                 </el-card>
             </el-col>
             <el-col :span="6" class='inline'>
                 <el-card class="box-card">
                     <h1>{{ab_exp_cnt}}</h1>
-                    <div>实验总数</div>
+                    <div>A/B在线实验总数</div>
                 </el-card>
             </el-col>
             <el-col :span="6" class='inline'>
                 <el-card class="box-card">
-                    <h1>{{models_cnt}}</h1>
-                    <div>模型总数</div>
+                    <h1><router-link
+                :to="{name: '模型中心', params: {}}"
+                style="
+                  cursor: pointer;
+                  color: #0000ff;text-decoration: none;">
+                {{ models_cnt }}
+              </router-link></h1>
+                    <div>注册的模型总数</div>
                 </el-card>
             </el-col>
         </el-row>
@@ -24,7 +30,7 @@
             <el-col :span="6" class='inline'>
                 <el-card class="box-card">
                     <h1>
-                        <el-link type="danger">{{pay_cvr_lift}}%</el-link>
+                        <el-link type="primary">{{pay_cvr_lift}}%</el-link>
                     </h1>
                     <div>付费转化率提升</div>
                 </el-card>

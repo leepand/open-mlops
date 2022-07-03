@@ -1,4 +1,4 @@
-from .. import app,auth,sql_db
+from .. import app,auth,sql_db,mlflow_client
 from flask import request,Response
 from flask_cors import cross_origin
 import datetime
@@ -11,7 +11,7 @@ from pyjackson import deserialize, serialize
 from .response import Response
 from structlog import get_logger
 
-from mlflow.tracking import MlflowClient
+
 from mlflow.protos.service_pb2 import ListExperiments
 from mlflow.protos.model_registry_pb2 import (ListRegisteredModels,
                                               GetRegisteredModel,
@@ -20,6 +20,9 @@ from mlflow.protos.model_registry_pb2 import (ListRegisteredModels,
                                               SearchModelVersions,
                                               TransitionModelVersionStage)
 
+from mlflow.protos.service_pb2 import GetExperiment
+from mlflow.protos.service_pb2 import SearchRuns,GetRun
+
 from mlflow.utils.proto_json_utils import message_to_json
 
 
@@ -27,7 +30,6 @@ logger = get_logger(__name__)
 
 rsp = Response()
 
-mlflow_client=MlflowClient(tracking_uri="http://0.0.0.0:8904")
 
 
 
@@ -261,6 +263,92 @@ def edit_model_version_description():
         ) 
         
         return rsp.success('model model version desc edit success!')
+    except:
+        exc_traceback = str(traceback.format_exc())
+        return rsp.failed(exc_traceback)
+
+@app.route('/api/experiments/get_model_experiment',methods=['GET'])  
+@cross_origin()
+@auth.login_required
+def get_model_experiment():
+    experiment_id = request.args.get('experiment_id', '')
+    user_name = request.args.get('user_key','')
+
+    response_message = GetExperiment.Response()
+    experiment = mlflow_client.get_experiment(experiment_id).to_proto()
+    response_message.experiment.MergeFrom(experiment)
+
+    json_data = json.loads(message_to_json(response_message))
+    result = json_data.get("experiment",{})
+    tags = result.get("tags",[{"key":"mlops.framework",'value': '无'}])
+    result['tags'] = tags
+    return rsp.success(result)
+
+@app.route('/api/experiments/edit_experiment_description',methods=['POST'])  
+@cross_origin()
+@auth.login_required
+def edit_experiment_description():
+    try:
+        experiment_id = request.get_json().get("experiment_id")
+        description = request.get_json().get("description",None)
+        user_name = request.get_json()['user_key']
+
+        mlflow_client.set_experiment_tag(experiment_id, "mlops.framework", description)
+        
+        return rsp.success('model experiment desc edit success!')
+    except:
+        exc_traceback = str(traceback.format_exc())
+        return rsp.failed(exc_traceback)
+
+@app.route('/api/experiments/get_model_runs',methods=['GET'])  
+@cross_origin()
+@auth.login_required
+def get_model_runs():
+    experiment_id = request.args.get('experiment_id', '')
+    user_name = request.args.get('user_key','')
+
+    experiment_ids=[experiment_id]
+    run_entities = mlflow_client.search_runs(
+        experiment_ids, filter_string='', max_results=1000, order_by=None
+    )
+    response_message = SearchRuns.Response()
+    response_message.runs.extend([r.to_proto() for r in run_entities])
+    json_data = json.loads(message_to_json(response_message))
+    result = json_data.get("runs",[])
+    return rsp.success(result)  
+
+@app.route('/api/experiments/get_model_run',methods=['GET'])  
+@cross_origin()
+@auth.login_required
+def get_model_run():
+    run_id = request.args.get('run_id', '')
+    user_name = request.args.get('user_key','')
+
+    response_message = GetRun.Response()
+    #run_id = '7033fe2d709848d585683c6b3fd45be7'
+    response_message.run.MergeFrom(mlflow_client.get_run(run_id).to_proto())
+    json_data = json.loads(message_to_json(response_message))
+    result = json_data.get("run",{})
+    data = result.get("data",{})
+    if len(data)<1:
+        result['tags'] = [{"key":"mlops.framework",'value': '无'}]
+    else:
+        tags = data.get("tags",[{"key":"mlops.framework",'value': '无'}])
+        result['tags'] = tags
+    return rsp.success(result) 
+
+@app.route('/api/experiments/edit_modelrun_description',methods=['POST'])  
+@cross_origin()
+@auth.login_required
+def edit_modelrun_description():
+    try:
+        run_id = request.get_json().get("run_id")
+        description = request.get_json().get("description",None)
+        user_name = request.get_json()['user_key']
+
+        mlflow_client.set_tag(run_id, "mlops.framework", description)
+        
+        return rsp.success('model run desc edit success!')
     except:
         exc_traceback = str(traceback.format_exc())
         return rsp.failed(exc_traceback)
