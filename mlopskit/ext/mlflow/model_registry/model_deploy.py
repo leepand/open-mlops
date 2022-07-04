@@ -19,7 +19,7 @@ from mlopskit.utils.rest_utils import augmented_raise_for_status
 
 MLMODEL_FILE_NAME = "MLmodel"
 
-class ModelDeploy(MlflowAbstractModelDataSet):
+class ModelDeploy(object):
     """Wrapper for saving, logging and loading for all MLflow model/data flavor."""
 
     def __init__(
@@ -82,22 +82,22 @@ class ModelDeploy(MlflowAbstractModelDataSet):
         else:
             self._remote_art_server = remote_art_server
 
-        self.mlflow_client = MlflowClient(tracking_uri = self.mlflow_server_url)
+        self.client = MlflowClient(tracking_uri = self.mlflow_server_url)
 
         if experiment_name:
             try:
                 self.experiment_name = experiment_name
-                self.experiment_id = self.mlflow_client.create_experiment(
+                self.experiment_id = self.client.create_experiment(
                     experiment_name,
                     user_id = user_id,
                     artifact_location=artifact_location,
                 )
             except MlflowException:
-                self.experiment_id = self.mlflow_client.get_experiment_by_name(experiment_name).experiment_id
+                self.experiment_id = self.client.get_experiment_by_name(experiment_name).experiment_id
 
         if self._run_id is None:
             #self.run_id = mlflow.start_run().info.run_id
-            self._run_id = self.mlflow_client.create_run(experiment_id = self.experiment_id).info.run_id
+            self._run_id = self.client.create_run(experiment_id = self.experiment_id).info.run_id
 
     @property
     def model_uri(self):
@@ -178,7 +178,7 @@ class ModelDeploy(MlflowAbstractModelDataSet):
                 PickleDataSet(filepath= _art_path_pkl,backend=self.backend).save(model)
                 
     def _get_art_path_name(self):
-        _artifact_path = self.mlflow_client.get_run(self._run_id).info.artifact_uri
+        _artifact_path = self.client.get_run(self._run_id).info.artifact_uri
         if self.art_name is not None:
             if len(self.art_name.split("."))<2:
                 saved_art_name = ".".join([self.art_name, 'pkl'])

@@ -35,21 +35,21 @@ class ModelTracking(MlflowAbstractMetricDataSet):
         # "overwrite" corresponds to the default mlflow behaviour
         self.mode = self._save_args.pop("mode", self.DEFAULT_SAVE_MODE)
         self.mlflow_server_url = mlflow_server_url
-        self.mlflow_client = MlflowClient(tracking_uri = self.mlflow_server_url)
+        self.client = MlflowClient(tracking_uri = self.mlflow_server_url)
 
         if experiment_name:
             try:
-                self.experiment_id = self.mlflow_client.create_experiment(
+                self.experiment_id = self.client.create_experiment(
                     experiment_name,
                     user_id = user_id,
                     artifact_location=artifact_location,
                 )
             except MlflowException:
-                self.experiment_id = self.mlflow_client.get_experiment_by_name(experiment_name).experiment_id
+                self.experiment_id = self.client.get_experiment_by_name(experiment_name).experiment_id
 
         if self.run_id is None:
             #self.run_id = mlflow.start_run().info.run_id
-            self.run_id = self.mlflow_client.create_run(experiment_id = self.experiment_id).info.run_id
+            self.run_id = self.client.create_run(experiment_id = self.experiment_id).info.run_id
         
     def set_terminated(self, status: Optional[str] = None, end_time: Optional[int] = None
     ) -> None:
@@ -85,7 +85,7 @@ class ModelTracking(MlflowAbstractMetricDataSet):
             run_id: 575fb62af83f469e84806aee24945973
             status: KILLED
         """
-        self.mlflow_client.set_terminated(self.run_id, status, end_time)
+        self.client.set_terminated(self.run_id, status, end_time)
 
     def log_param(self, key: str, value: Any) -> None:
         """
@@ -130,12 +130,12 @@ class ModelTracking(MlflowAbstractMetricDataSet):
             params: {'p': '1'}
             status: FINISHED
         """
-        self.mlflow_client.log_param(self.run_id, key, value)
+        self.client.log_param(self.run_id, key, value)
 
     def _load(self):
         self._validate_run_id()
         
-        metric_history = self.mlflow_client.get_metric_history(
+        metric_history = self.client.get_metric_history(
             run_id=self.run_id, key=self.key
         )  # gets active run if no run_id was given
 
@@ -164,13 +164,13 @@ class ModelTracking(MlflowAbstractMetricDataSet):
                 self.run_id
             )  # we access it once instead of calling self.run_id everywhere to avoid looking or an active run each time
 
-            #mlflow_client = MlflowClient()
+            #client = MlflowClient()
 
             # get the metric history if it has been saved previously to ensure
             #  to retrieve the right data
             # reminder: this is True even if no run_id was originally specified but a run is active
             metric_history = (
-                self.mlflow_client.get_metric_history(run_id=run_id, key=self.key)
+                self.client.get_metric_history(run_id=run_id, key=self.key)
                 if self._exists()
                 else []
             )
@@ -190,7 +190,7 @@ class ModelTracking(MlflowAbstractMetricDataSet):
                         f"save_args['mode'] must be one of {self.SUPPORTED_SAVE_MODES}, got '{self.mode}' instead."
                     )
 
-            self.mlflow_client.log_metric(
+            self.client.log_metric(
                 run_id=run_id,
                 key=self.key,
                 value=data,

@@ -23,7 +23,7 @@ class MlflowAbstractMetricDataSet(AbstractDataSet):
         self._load_args = load_args or {}
         self._save_args = save_args or {}
         self._logging_activated = True  # by default, logging is activated!
-        self.mlflow_client = MlflowClient()
+        self.client = MlflowClient()
     @property
     def run_id(self) -> Union[str, None]:
         """Get run id."""
@@ -72,7 +72,7 @@ class MlflowAbstractMetricDataSet(AbstractDataSet):
             bool: Does the metric name exist in the given run_id?
         """
         run_id = self.run_id  # will get the active run if nothing is specified
-        run = self.mlflow_client.get_run(run_id) if run_id else mlflow.active_run()
+        run = self.client.get_run(run_id) if run_id else mlflow.active_run()
 
         flag_exist = self.key in run.data.metrics.keys() if run else False
         return flag_exist

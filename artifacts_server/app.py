@@ -24,12 +24,20 @@ app = FastAPI()
 class Item(BaseModel):  # 定义一个类用作参数
     name: str
 
+def make_containing_dirs(path):
+    """
+    Create the base directory for a given file path if it does not exist; also creates parent
+    directories.
+    """
+    dir_name = os.path.dirname(path)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
 
 class Settings(BaseSettings):
     environment: str = os.getenv("ENVIRONMENT", "dev")
     testing: bool = os.getenv("TESTING", False)
     database_url: PostgresDsn = os.environ.get("DATABASE_URL")
-    filestore_dir: str = os.environ.get("FILESTORE_DIR", "")
+    filestore_dir: str = os.environ.get("FILESTORE_DIR",'/Users/leepand/Downloads/codes/mlflow')
     backend_cors_origins: List[AnyHttpUrl] = []
 
 
@@ -47,8 +55,9 @@ async def save_file(file: UploadFile, filestore: str) -> str:
     :return: filename
     """
     try:
-        async with aiofiles.open(os.path.join(filestore, file.filename), "wb") as f:
-
+        #async with aiofiles.open(os.path.join(filestore, file.filename), "wb") as f:
+        async with aiofiles.open(filestore, "wb") as f:
+            print(os.path.join(filestore, file.filename,"fsfdf"))
             # Read the data in chunks and save it, as we go.
             for i in iter(lambda: file.file.read(1024 * 1024 * 64), b""):
 
@@ -77,12 +86,16 @@ async def upload_file(
     file: UploadFile = File(...),
     settings: Settings = Depends(get_settings)
 ):
-
-    filename = await save_file(file, settings.filestore_dir)
-    
+    file_store = os.path.join(settings.filestore_dir,art_file)
+    make_containing_dirs(file_store)
+    filename = await save_file(file, file_store)
+    #print(filename,settings.filestore_dir,"sfff")
     run_info = mlflow_client.get_run(run_id).info
-    mlflow_client.log_artifact(run_info.run_id, filename)
-    print(run_info,art_file,"fsf")
+    #art_uri = '/Users/leepand/Downloads/codes/mlflow'
+    #log_file = os.path.join(art_uri,art_file)
+    print(run_info,"sffllll",art_file,"fsf")
+    #mlflow_client.log_artifact(run_info.run_id, art_file, log_file)
+    
     
     #payload = UploadPayloadSchema(
     #    filename=filename,
