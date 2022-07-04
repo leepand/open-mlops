@@ -9,12 +9,17 @@ from colorama import init
 from .routes import ui_routes,path_to_local_sqlite_uri
 from .models import SysModelInit
 
+from mlopskit.config import CONFIG
 
+mlops_sqlite_db = CONFIG["mlops_sqlite_db"]
 
-defa_db_uri = path_to_local_sqlite_uri("/Users/leepand/Downloads/codes/checkpoint.db")
+defa_db_uri = path_to_local_sqlite_uri(mlops_sqlite_db)
 sys_db_uri = os.environ.get("DATABASE_URL", defa_db_uri)
 sql_db=SysModelInit(sys_db_uri)
-mlflow_client=MlflowClient(tracking_uri="http://0.0.0.0:8904")
+
+mlflow_local_server_uri  = CONFIG["mlflow_local_server_uri"]
+
+mlflow_client=MlflowClient(tracking_uri= mlflow_local_server_uri)
 
 
 if os.name == 'nt':

@@ -14,9 +14,12 @@ from fastapi.responses import FileResponse
 from pydantic import BaseSettings, PostgresDsn, AnyHttpUrl
 from pydantic import BaseModel
 from mlflow.tracking import MlflowClient
+from mlopskit.config import CONFIG
 
-mlflow_client=MlflowClient(tracking_uri="http://0.0.0.0:8904")
+mlflow_local_server_uri  = CONFIG["mlflow_local_server_uri"]
+mlops_art_basepath = CONFIG["mlops_art_basepath"]
 
+mlflow_client=MlflowClient(tracking_uri= mlflow_local_server_uri)
 
 log = logging.getLogger("uvicorn")
 app = FastAPI()
@@ -37,7 +40,7 @@ class Settings(BaseSettings):
     environment: str = os.getenv("ENVIRONMENT", "dev")
     testing: bool = os.getenv("TESTING", False)
     database_url: PostgresDsn = os.environ.get("DATABASE_URL")
-    filestore_dir: str = os.environ.get("FILESTORE_DIR",'/Users/leepand/Downloads/codes/mlflow')
+    filestore_dir: str = os.environ.get("FILESTORE_DIR",mlops_art_basepath)
     backend_cors_origins: List[AnyHttpUrl] = []
 
 
@@ -93,7 +96,7 @@ async def upload_file(
     run_info = mlflow_client.get_run(run_id).info
     #art_uri = '/Users/leepand/Downloads/codes/mlflow'
     #log_file = os.path.join(art_uri,art_file)
-    print(run_info,"sffllll",art_file,"fsf")
+    #print(run_info,"sffllll",art_file,"fsf")
     #mlflow_client.log_artifact(run_info.run_id, art_file, log_file)
     
     
