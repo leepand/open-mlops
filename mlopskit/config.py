@@ -9,7 +9,7 @@ if config_path:
     except IOError:
         raise RuntimeError(
             'MLOPS_CONFIG - {0} - is an invalid path'.format(config_path))
-    except yaml.YAMLError, exc:
+    except yaml.YAMLError as exc:
         raise RuntimeError('Error in configuration file: {0}'.format(str(exc)))
 else:
     CONFIG = {
@@ -19,3 +19,4 @@ else:
         'mlflow_local_server_uri': os.environ.get('MLFLOW_LOCAL_SERVER_URI', 
                                                    "http://0.0.0.0:8904"),
         'mlops_sqlite_db': os.environ.get("MLOPS_SQLITE_DB","mlops.db")
+    }
