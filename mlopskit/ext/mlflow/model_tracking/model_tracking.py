@@ -41,7 +41,6 @@ class ModelTracking(MlflowAbstractMetricDataSet):
             try:
                 self.experiment_id = self.client.create_experiment(
                     experiment_name,
-                    user_id = user_id,
                     artifact_location=artifact_location,
                 )
             except MlflowException:
