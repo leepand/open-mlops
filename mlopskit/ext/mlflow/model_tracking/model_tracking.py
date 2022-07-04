@@ -5,8 +5,9 @@ from mlflow.tracking import MlflowClient
 from mlflow.exceptions import MlflowException
 from mlopskit.ext.mlflow.model_tracking.mlflow_abstract_metric_dataset import (
     MlflowAbstractMetricDataSet
-) 
+)
 
+import getpass
 
 class ModelTracking(MlflowAbstractMetricDataSet):
     SUPPORTED_SAVE_MODES = {"overwrite", "append"}
@@ -48,7 +49,14 @@ class ModelTracking(MlflowAbstractMetricDataSet):
 
         if self.run_id is None:
             #self.run_id = mlflow.start_run().info.run_id
-            self.run_id = self.client.create_run(experiment_id = self.experiment_id).info.run_id
+            default_user_name = getpass.getuser()
+            user_key="mlflow.user"
+            if user_id is not None:
+                user_name = user_id
+            else:
+                user_name = default_user_name
+            self._run_id = self.client.create_run(experiment_id = self.experiment_id,
+                                                  tags={user_key:user_name}).info.run_id
         
     def set_terminated(self, status: Optional[str] = None, end_time: Optional[int] = None
     ) -> None:

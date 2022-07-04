@@ -15,6 +15,7 @@ from mlopskit.ext.store import PickleDataSet
 from mlopskit.utils.string_utils import strip_suffix
 from mlopskit.utils.file_utils import relative_path_to_artifact_path
 from mlopskit.utils.rest_utils import augmented_raise_for_status
+import getpass
 
 
 MLMODEL_FILE_NAME = "MLmodel"
@@ -96,7 +97,14 @@ class ModelDeploy(object):
 
         if self._run_id is None:
             #self.run_id = mlflow.start_run().info.run_id
-            self._run_id = self.client.create_run(experiment_id = self.experiment_id).info.run_id
+            default_user_name = getpass.getuser()
+            user_key="mlflow.user"
+            if user_id is not None:
+                user_name = user_id
+            else:
+                user_name = default_user_name
+            self._run_id = self.client.create_run(experiment_id = self.experiment_id,
+                                                  tags={user_key:user_name}).info.run_id
 
     @property
     def model_uri(self):
