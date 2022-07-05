@@ -1,9 +1,13 @@
 from .. import app,auth,sql_db,mlflow_client
-from flask import request,Response
+from flask import request,Response,send_file
 from flask_cors import cross_origin
 import datetime
 import traceback
 import json
+import os
+import nbformat
+# 1. Import the exporter
+from nbconvert import HTMLExporter
 
 from sqlalchemy_paginator import Paginator
 from pyjackson import deserialize, serialize
@@ -24,6 +28,9 @@ from mlflow.protos.service_pb2 import GetExperiment
 from mlflow.protos.service_pb2 import SearchRuns,GetRun
 
 from mlflow.utils.proto_json_utils import message_to_json
+from mlopskit.config import CONFIG
+
+mlops_art_basepath = CONFIG["mlops_art_basepath"]
 
 
 logger = get_logger(__name__)
@@ -352,3 +359,85 @@ def edit_modelrun_description():
     except:
         exc_traceback = str(traceback.format_exc())
         return rsp.failed(exc_traceback)
+
+@app.route('/api/models/get_models_markdown',methods=['POST'])  
+@cross_origin()
+@auth.login_required
+def get_models_markdown():
+    model_name = request.get_json()['model_name']
+    version_id = request.get_json()['version_id']
+    model_version = mlflow_client.get_model_version(
+        name= model_name, version=version_id
+    )
+    response_proto = model_version.to_proto()
+    response_message = GetModelVersion.Response(model_version=response_proto)
+    
+    json_data = json.loads(message_to_json(response_message))
+
+    result = json_data.get("model_version",{})
+    model_jupyter_path = os.path.join(mlops_art_basepath,result.get("source",""))
+    print(model_jupyter_path,"model_jupyter_path")
+
+    files = []
+    _fnamePath = ''
+    directory_files = os.scandir(model_jupyter_path)
+    for file in directory_files:
+        fname = file.name
+        if fname.endswith('.ipynb'):
+            if fname=="main":
+                _fnamePath = file.path
+            files.append(file.path)
+    if _fnamePath:
+        jupyterFile = _fnamePath
+    else:
+        jupyterFile = files[0]
+
+    (_filename, extension) = os.path.splitext(jupyterFile)
+    filename = _filename.split("/")[-1]
+    to_html_filename = ".".join([filename,"html"])
+    file1 = open(jupyterFile,"r+") 
+    file_content = file1.read()
+    print("Output of Read function is ")
+    print(type(file1.read()))
+    print()
+    file1.close()
+
+
+    jake_notebook = nbformat.reads(file_content, as_version=4)
+
+
+    # 2. Instantiate the exporter. We use the `classic` template for now; we'll get into more details
+    # later about how to customize the exporter further.
+    html_exporter = HTMLExporter()
+    html_exporter.template_name = 'classic'
+
+    # 3. Process the notebook we loaded earlier
+    (body, resources) = html_exporter.from_notebook_node(jake_notebook)
+
+    # in other words, we replace the template tag
+    # by the contents of the overfitting file
+    # write the result to disk in index.html
+
+    htmlpath = os.path.join(model_jupyter_path,".html")
+    #os.makedirs(os.path.dirname(htmlpath), exist_ok=True)
+    try:
+        os.makedirs(htmlpath, exist_ok = True)
+        print("Directory '%s' created successfully" %htmlpath)
+    except OSError as error:
+        print("Directory '%s' can not be created")
+    file_to_view = os.path.join(htmlpath,to_html_filename)
+    with open(file_to_view, 'w') as ofile:
+        ofile.write(body)
+
+    #file_to_view = os.path.join(filepath,file_to_view)
+    print(file_to_view,"file_to_view")
+    if file_to_view:
+        # Check if file extension
+        (filename, extension) = os.path.splitext(file_to_view)
+        send_as_attachment=False
+        if extension == '':
+            mimetype = 'text/plain'
+        else:
+            mimetype = None
+            
+        return send_file(file_to_view, mimetype=mimetype, as_attachment=send_as_attachment)

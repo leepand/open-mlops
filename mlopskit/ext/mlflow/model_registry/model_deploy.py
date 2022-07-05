@@ -60,15 +60,8 @@ class ModelDeploy(object):
         Raises:
             DataSetError: When passed `flavor` does not exist.
         """
-        super().__init__(
-            filepath="",
-            flavor=flavor,
-            pyfunc_workflow=pyfunc_workflow,
-            load_args=load_args,
-            save_args=save_args,
-            version=None,
-        )
-
+        self._load_args = load_args or {}
+        self._save_args = save_args or {}
         self._run_id = run_id
         self._artifact_path = artifact_path
         self.sub_path = sub_path

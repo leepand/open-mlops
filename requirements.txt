@@ -1,3 +1,4 @@
 mlflow
 flask
 Flask-Login
+nbconvert
