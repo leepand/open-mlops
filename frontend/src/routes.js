@@ -17,7 +17,7 @@ const ModelTrackingView = () => import('./views/model-tracking/ModelTrackingView
 const RegisteredModelsPage = () => import('./views/model-deploy/RegisteredModelsPage.vue')
 const ModelVersionPage = () => import('./views/model-deploy/ModelVersionPage.vue')
 const ModelVersionView = () => import('./views/model-deploy/ModelVersionView.vue')
-
+const FileContentView = () => import('./views/model-deploy/FileContentView.vue')
 
 let routes = [
   {
@@ -124,7 +124,9 @@ let routes = [
          name: '模型版本管理' },
         { path: '/models/model=:model_name/version=:version_id', 
          component: ModelVersionView, 
-         name: '模型版本详情' }
+         name: '模型版本详情' },
+        { path: '/models/modelfile/model=:model_name/version=:version_id', 
+         component: FileContentView, name: '查看文件' },
     ]
     },
     

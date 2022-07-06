@@ -14,7 +14,7 @@ from pyjackson import deserialize, serialize
 
 from .response import Response
 from structlog import get_logger
-
+from ..utils.misc import del_file,process_files,is_valid_subpath,get_parent_directory
 
 from mlflow.protos.service_pb2 import ListExperiments
 from mlflow.protos.model_registry_pb2 import (ListRegisteredModels,
@@ -390,6 +390,8 @@ def get_models_markdown():
     if _fnamePath:
         jupyterFile = _fnamePath
     else:
+        if len(files)<1:
+            return  rsp.success('None Jupyter file!')
         jupyterFile = files[0]
 
     (_filename, extension) = os.path.splitext(jupyterFile)
@@ -401,11 +403,7 @@ def get_models_markdown():
     print(type(file1.read()))
     print()
     file1.close()
-
-
     jake_notebook = nbformat.reads(file_content, as_version=4)
-
-
     # 2. Instantiate the exporter. We use the `classic` template for now; we'll get into more details
     # later about how to customize the exporter further.
     html_exporter = HTMLExporter()
@@ -441,3 +439,141 @@ def get_models_markdown():
             mimetype = None
             
         return send_file(file_to_view, mimetype=mimetype, as_attachment=send_as_attachment)
+    
+@app.route('/api/modelfile/rename_file_dir_name',methods=['POST'])  
+@cross_origin()
+@auth.login_required
+def rename_file_dir_name():
+    new_name = request.get_json()['name']
+    old_name = request.get_json()['old_name']
+    file_path = request.get_json()['path']
+    old_path_name = os.path.join(file_path,old_name)
+    new_path_name = os.path.join(file_path,new_name)
+    
+    os.rename(old_path_name,new_path_name)
+    
+    return rsp.success("ok")
+
+@app.route('/api/modelfile/del_file_dir',methods=['POST'])  
+@cross_origin()
+@auth.login_required
+def del_file_dir():
+    del_name = request.get_json()['name']
+    file_path = request.get_json()['path']
+    tobeDelFileDirType = request.get_json()['tobeDelFileDirType']
+    file_or_path = os.path.join(file_path,del_name)
+    if tobeDelFileDirType=="dir":
+        del_file(file_or_path)
+    else:
+        try:
+            os.remove(file_or_path)
+        except:
+            rsp.failed("no file or Permission Denied")
+    
+    return rsp.success("ok")
+
+@app.route('/api/models/get_model_files',methods=['GET'])  
+@cross_origin()
+@auth.login_required
+def get_model_files():
+    page_size=10
+    page = request.args.get('page', 1, type=int)
+    _path = request.args.get('path',None)
+    model_name = request.args.get('model_name')
+    version_id = request.args.get('version_id')
+    path = os.path.basename(_path)
+    model_version = mlflow_client.get_model_version(
+        name= model_name, version=version_id
+    )
+    response_proto = model_version.to_proto()
+    response_message = GetModelVersion.Response(model_version=response_proto)
+    
+    json_data = json.loads(message_to_json(response_message))
+
+    result = json_data.get("model_version",{})
+    #get model deploy path
+    model_version_files_path = os.path.join(mlops_art_basepath,result.get("source",""))
+
+    global base_directory
+    base_directory = model_version_files_path
+    # If there is a path parameter and it is valid
+    if path and is_valid_subpath(path, base_directory):
+        # Take off the trailing '/'
+        path = os.path.normpath(path)
+        requested_path = os.path.join(base_directory, path)
+        print(requested_path,"requested_path")
+        # If directory
+        if os.path.isdir(requested_path):
+            #back = os.path.dirname(requested_path)#get_parent_directory(requested_path, base_directory)
+            back=get_parent_directory(requested_path, base_directory)
+            #back=back.split("/")[-1]
+            is_subdirectory = True
+                
+        # If file
+        elif os.path.isfile(requested_path):
+        
+            # Check if the view flag is set
+            if request.args.get('view') is None:
+                send_as_attachment = True
+            else:
+                send_as_attachment = False
+        
+            # Check if file extension
+            (filename, extension) = os.path.splitext(requested_path)
+            if extension == '':
+                mimetype = 'text/plain'
+            else:
+                mimetype = None
+            print(send_as_attachment,requested_path,"requested_pathddd")
+            try:
+                print(send_as_attachment,requested_path,"requested_path")
+                return send_file(requested_path, mimetype=mimetype, as_attachment=send_as_attachment)
+            except PermissionError:
+                rsp.failed('Read Permission Denied: ' + requested_path)
+    else:
+        # Root home configuration
+        is_subdirectory = False
+        requested_path = base_directory
+        back = ''
+
+    if os.path.exists(requested_path):
+        # Read the files
+        try:
+            exclude=["venv"]
+            directory_files = process_files(os.scandir(requested_path), base_directory,exclude=exclude)
+        except PermissionError:
+            rsp.failed('Read Permission Denied: ' + requested_path)
+
+        result = {
+            "files":directory_files,
+            "back":back,
+            "directory":requested_path,
+            "is_subdirectory":is_subdirectory,
+            "page":1,
+            "total":1,
+            "version":"v1.0"
+        }
+
+        return rsp.success(result)
+    else:
+        return rsp.success("/")
+    
+@app.route('/api/models/cat_file_contents',methods=['POST'])  
+@cross_origin()
+@auth.login_required
+def cat_file_contents():
+    file_to_view= request.get_json()['fileToView']
+    filepath = request.get_json()['filepath']
+    file_to_view = os.path.join(filepath,file_to_view)
+    print(file_to_view,"file_to_view")
+    if file_to_view:
+        # Check if file extension
+        (filename, extension) = os.path.splitext(file_to_view)
+        send_as_attachment=False
+        if extension == '':
+            mimetype = 'text/plain'
+        else:
+            mimetype = None
+            
+        return send_file(file_to_view, mimetype=mimetype, as_attachment=send_as_attachment)
+        

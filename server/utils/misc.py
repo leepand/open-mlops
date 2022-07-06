@@ -7,8 +7,129 @@ import abkit.db as db
 from markdown import markdown
 import requests
 from functools import wraps
+import shutil
+
+from math import log2
+from time import ctime
+from flask import Markup
+import mistune
+import sys
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import html
+
+try:
+    from pygments import formatters, highlight, lexers
+except ImportError:
+    import warnings
+    warnings.warn('pygments library not found.', ImportWarning)
+    syntax_highlight = lambda data: '<pre>%s</pre>' % data
+else:
+    def syntax_highlight(data):
+        if not data:
+            return ''
+        lexer = lexers.get_lexer_by_name('python')
+        formatter = formatters.HtmlFormatter(linenos=False)
+        return highlight(data, lexer, formatter)
+def highlight_filter(data):
+    return Markup(syntax_highlight(data))
+
+class HighlightRenderer(mistune.Renderer):
+    def block_code(self, code, lang):
+        if not lang:
+            return '\n<pre><code>%s</code></pre>\n' % \
+                mistune.escape(code)
+        lexer = get_lexer_by_name(lang, stripall=True)
+        formatter = html.HtmlFormatter()
+        return highlight(code, lexer, formatter)
+
+def get_parent_directory(path, base_directory):
+    difference = get_relative_path(path, base_directory)
+    difference_fields = difference.split('/')
+    if len(difference_fields) == 1:
+        return ''
+    else:
+        return '/'.join(difference_fields[:-1])
+
+def is_valid_subpath(relative_directory, base_directory):
+    in_question = os.path.abspath(os.path.join(base_directory, relative_directory))
+    _base_directory = os.path.abspath(base_directory)
+    return os.path.commonprefix([_base_directory, in_question]) == _base_directory
+def del_file(filepath):
+    """
+    删除某一目录下的所有文件或文件夹
+    :param filepath: 路径
+    :return:
+    """
+    del_list = os.listdir(filepath)
+    for f in del_list:
+        file_path = os.path.join(filepath, f)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+
+def get_relative_path(file_path, base_directory):
+    #return file_path.split(os.path.commonprefix([base_directory, file_path]))[1][1:]
+    return file_path.split(os.path.commonprefix([base_directory, file_path]))[1][0:]
 
 
+def human_readable_file_size(size):
+    # Taken from Dipen Panchasara
+    # https://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
+    _suffixes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    order = int(log2(size) / 10) if size else 0
+    return '{:.4g} {}'.format(size / (1 << (order * 10)), _suffixes[order])
+
+
+def process_files(directory_files, base_directory,exclude=[]):
+    files = []
+    for file in directory_files:
+        if file.name in exclude:
+            continue
+        if file.is_dir():
+            size = '--'
+            size_sort = -1
+        else:
+            size = human_readable_file_size(file.stat().st_size)
+            size_sort = file.stat().st_size
+            
+        fname = file.name
+        if fname.endswith('.py'):
+            with open(file, 'rb') as f:
+                source = f.read()
+            code_content = highlight_filter(source)
+        elif fname.endswith('.log') or fname.endswith('.txt') or fname.endswith('.json'):
+            with open(file, 'rb') as f:
+                code_content = f.read()
+        elif fname.endswith('.MD') or fname.endswith('.md'):
+            with open(file, 'rb') as f:
+                md_text = f.read()
+                rd = HighlightRenderer()
+                markdown = mistune.Markdown(renderer=rd)
+                html = markdown(md_text.decode())
+  
+                # 为了避免中文乱码 以及添加高亮样式
+                head_css = '<meta http-equiv="Content-Type"\
+                content="text/html; charset=utf-8" />\n'
+                css_name = "code.css"
+                code_css = '<link rel="stylesheet" href="' + css_name \
+                    + '" type="text/css"/>\n'
+                code_css = head_css + code_css
+                code_content = code_css+html
+        else:
+            code_content=""
+        files.append({
+            'name': file.name,
+            'is_dir': file.is_dir(),
+            'rel_path': get_relative_path(file.path, base_directory),
+            'size': size,
+            'size_sort': size_sort,
+            'code_content':"code_content",
+            'last_modified': ctime(file.stat().st_mtime),
+            'last_modified_sort': file.stat().st_mtime
+        })
+    return files
 
 def exception_resistant(func):
     num_fails = 0
@@ -194,3 +315,4 @@ def reset_winner(experiment_name):
     bRet,experiment = find_or_404(experiment_name)
     experiment.reset_winner()
     return True,"Sucess"
+
