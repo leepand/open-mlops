@@ -12,10 +12,9 @@ import 'babel-polyfill'
 
 import vueHljs from 'vue-hljs'
 // if you want to use default color, import this css file
-//import 'vue-hljs/dist/vue-hljs.min.css'
+// import 'vue-hljs/dist/vue-hljs.min.css'
 import 'vue-hljs/dist/style.css'
-import hljs from "highlight.js";
-
+import hljs from 'highlight.js'
 
 import VueTimeago from 'vue-timeago'
 
@@ -37,7 +36,9 @@ Vue.use(VueRouter)
 Vue.use(Vuex)
 
 // use
-Vue.use(vueHljs, { hljs })
+Vue.use(vueHljs, {
+  hljs
+})
 
 // NProgress.configure({ showSpinner: false });
 
@@ -51,6 +52,7 @@ axios.interceptors.request.use(
     var token = sessionStorage.getItem('token')
     if (token) { // 判断是否存在token，如果存在的话，则每个http header都加上token
       token = sessionStorage.getItem('token') + ':'
+      // eslint-disable-next-line node/no-deprecated-api
       config.headers.Authorization = `Basic ${new Buffer(token).toString('base64')}`
     }
     return config
@@ -121,12 +123,19 @@ router.beforeEach((to, from, next) => {
     next()
   } else if (!token && to.path !== '/login') {
     console.log(to.path)
-    next({ path: '/login', query: { url: to.path } })
+    next({
+      path: '/login',
+      query: {
+        url: to.path
+      }
+    })
   } else {
     next()
   }
   if (to.path === '/') {
-    next({ path: '/dashboard' })
+    next({
+      path: '/dashboard'
+    })
   }
 })
 

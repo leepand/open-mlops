@@ -4,12 +4,12 @@
       <el-col
         :span="10"
         class="logo"
-        :class="collapsed?'logo-collapse-width':'logo-width'"
+        :class="collapsed ? 'logo-collapse-width' : 'logo-width'"
       >
         <router-link
           to="/dashboard"
           style="text-decoration: none; color: #ffffff"
-          >{{collapsed?'':sysName}}</router-link
+          >{{ collapsed ? "" : sysName }}</router-link
         >
       </el-col>
       <el-col :span="10">
@@ -21,19 +21,19 @@
         <el-dropdown trigger="hover"
           ><!--<img :src="this.sysUserAvatar"-->
           <span class="el-dropdown-link userinfo-inner"
-            ><img src="../assets/userphoto.jpg" /> {{sysUserName}}</span
+            ><img src="../assets/userphoto.jpg" /> {{ sysUserName }}</span
           >
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>
               <router-link
-                :to="{name: '设置'}"
+                :to="{ name: '设置' }"
                 style="text-decoration: none; color: #000000"
                 >我的消息</router-link
               >
             </el-dropdown-item>
             <el-dropdown-item>
               <router-link
-                :to="{name: '设置'}"
+                :to="{ name: '设置' }"
                 style="text-decoration: none; color: #000000"
                 >我的设置</router-link
               >
@@ -46,7 +46,7 @@
       </el-col>
     </el-col>
     <el-col :span="24" class="main">
-      <aside :class="collapsed?'menu-collapsed':'menu-expanded'">
+      <aside :class="collapsed ? 'menu-collapsed' : 'menu-expanded'">
         <!--导航菜单-未折叠 $route.path-->
         <el-menu
           :default-active="defaultPath"
@@ -59,25 +59,25 @@
           router
           v-show="!collapsed"
         >
-          <template v-for="(item,index) in routes">
-            <el-submenu :index="index+''" :key="item.name" v-if="!item.leaf"
+          <template v-for="(item, index) in routes">
+            <el-submenu :index="index + ''" :key="item.name" v-if="!item.leaf"
               ><!--遍历的其中一个菜单项,设置有单节点的。-->
               <template slot="title"
-                ><i :class="item.iconCls"></i>{{item.name}}</template
+                ><i :class="item.iconCls"></i>{{ item.name }}</template
               >
               <el-menu-item
                 v-for="child in routeChildren(item)"
                 :index="child.path"
                 :key="child.path"
               >
-                {{child.name}}
+                {{ child.name }}
               </el-menu-item>
             </el-submenu>
             <el-menu-item
-              v-if="item.leaf&&item.children.length>0"
+              v-if="item.leaf && item.children.length > 0"
               :key="item.name"
               :index="item.children[0].path"
-              ><i :class="item.iconCls"></i>{{item.children[0].name}}
+              ><i :class="item.iconCls"></i>{{ item.children[0].name }}
             </el-menu-item>
           </template>
         </el-menu>
@@ -87,7 +87,7 @@
           ref="menuCollapsed"
         >
           <li
-            v-for="(item,index) in routes"
+            v-for="(item, index) in routes"
             :key="item.name"
             class="el-submenu item"
           >
@@ -97,26 +97,26 @@
               <div
                 class="el-submenu__title"
                 style="padding-left: 20px"
-                @mouseover="showMenu(index,true)"
-                @mouseout="showMenu(index,false)"
+                @mouseover="showMenu(index, true)"
+                @mouseout="showMenu(index, false)"
               >
                 <i :class="item.iconCls"></i>
               </div>
               <ul
                 class="el-menu submenu"
-                :class="'submenu-hook-'+index"
-                @mouseover="showMenu(index,true)"
-                @mouseout="showMenu(index,false)"
+                :class="'submenu-hook-' + index"
+                @mouseover="showMenu(index, true)"
+                @mouseout="showMenu(index, false)"
               >
                 <li
                   v-for="child in item.children"
                   :key="child.path"
                   class="el-menu-item"
                   style="padding-left: 40px"
-                  :class="$route.path===child.path?'is-active':''"
+                  :class="$route.path === child.path ? 'is-active' : ''"
                   @click="$router.push(child.path)"
                 >
-                  {{child.name}}
+                  {{ child.name }}
                 </li>
               </ul>
             </template>
@@ -125,7 +125,9 @@
                 <div
                   class="el-submenu__title el-menu-item"
                   style="height: 56px; line-height: 56px; padding: 0 20px"
-                  :class="$route.path===item.children[0].path?'is-active':''"
+                  :class="
+                    $route.path === item.children[0].path ? 'is-active' : ''
+                  "
                   @click="$router.push(item.children[0].path)"
                 >
                   <i :class="item.iconCls"></i>
@@ -138,11 +140,9 @@
       <section class="content-container">
         <div class="grid-content bg-purple-light">
           <el-col :span="24" class="breadcrumb-container">
-            <strong
-              class="title"
-              v-if="$route.name!='模型市场'"
-              >{{$route.name}}</strong
-            >
+            <strong class="title" v-if="$route.name != '模型市场'">{{
+              $route.name
+            }}</strong>
             <el-breadcrumb separator="/" class="breadcrumb-inner">
               <el-breadcrumb-item
                 v-for="item in $route.matched"
@@ -167,21 +167,21 @@
 export default {
   data () {
     return {
-        sysName: '博乐数智平台',
-        defaultPath: this.$route.path,
-        collapsed: false,
-        sysUserName: '',
-        sysUserAvatar: '',
-        form: {
-            name: '',
-            region: '',
-            date1: '',
-            date2: '',
-            delivery: false,
-            type: [],
-            resource: '',
-            desc: ''
-        }
+      sysName: '博乐数智平台',
+      defaultPath: this.$route.path,
+      collapsed: false,
+      sysUserName: '',
+      sysUserAvatar: '',
+      form: {
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      }
     }
   },
   computed: {
@@ -205,32 +205,33 @@ export default {
       console.log('submit!')
     },
     handleopen () {
-        this.defaultPath=this.$route.matched[0].path
+      this.defaultPath = this.$route.matched[0].path
       // console.log('handleopen');
     },
     handleclose () {
       // console.log('handleclose');
     },
-    handleselect: function (a, b) {
-    },
+    handleselect: function (a, b) {},
     // 退出登录
     logout: function () {
       var _this = this
       this.$confirm('确认退出吗?', '提示', {
         // type: 'warning'
-      }).then(() => {
-        sessionStorage.removeItem('user')
-        _this.$router.push('/login')
-      }).catch(() => {
-
       })
+        .then(() => {
+          sessionStorage.removeItem('user')
+          _this.$router.push('/login')
+        })
+        .catch(() => {})
     },
     // 折叠导航栏
     collapse: function () {
       this.collapsed = !this.collapsed
     },
     showMenu (i, status) {
-      this.$refs.menuCollapsed.getElementsByClassName('submenu-hook-' + i)[0].style.display = status ? 'block' : 'none'
+      this.$refs.menuCollapsed.getElementsByClassName(
+        'submenu-hook-' + i
+      )[0].style.display = status ? 'block' : 'none'
     }
   },
   mounted () {

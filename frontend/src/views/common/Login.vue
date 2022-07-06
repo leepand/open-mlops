@@ -1,68 +1,98 @@
 <template>
   <div class="login-wrap">
-      <div class="operation-content">
-        <div class="login-title">
-          <img src="../../assets/algo_cloud.png" alt="">
+    <div class="operation-content">
+      <div class="login-title">
+        <img src="../../assets/algo_cloud.png" alt="" />
+      </div>
+      <div class="login-body">
+        <div style="display: none">{{ exitsVal }}</div>
+        <div class="el-input input-account">
+          <input
+            class="el-input__inner"
+            type="text"
+            placeholder="手机号码"
+            @focus="
+              passwordClean = false;
+              accountClean = true && inputAccount;
+            "
+            v-model="inputAccount"
+            maxlength="11"
+          />
         </div>
-        <div class="login-body">
-          <div style="display:none" >{{ exitsVal }}</div>
-          <div class="el-input input-account">
-            <input class="el-input__inner" type="text"
-                   placeholder="手机号码"
-                   @focus="passwordClean = false;accountClean = true && inputAccount"
-                   v-model="inputAccount" maxlength="11">
-          </div>
 
-          <i class="input-icon-0  el-icon-circle-cross"
-             v-if="accountClean"
-             @click="handleIconClick()"></i>
+        <i
+          class="input-icon-0 el-icon-circle-cross"
+          v-if="accountClean"
+          @click="handleIconClick()"
+        ></i>
 
-          <div class="password-input">
+        <div class="password-input">
+          <el-input
+            v-if="passwordShow == true"
+            type="text"
+            placeholder="密码"
+            @change="passeordChange('P')"
+            :maxlength="maxlengthP"
+            v-model="inputPassword"
+            @focus="
+              accountClean = false;
+              passwordClean = true && inputPassword;
+            "
+          >
+          </el-input>
+
+          <div class="hide-password" v-if="passwordShow == false">
             <el-input
-              v-if="passwordShow == true"
-              type="text"
+              type="password"
               placeholder="密码"
-              @change = "passeordChange('P')"
-              :maxlength = "maxlengthP"
+              @change="passeordChange('P')"
+              :maxlength="maxlengthP"
               v-model="inputPassword"
-              @focus="accountClean = false;passwordClean = true && inputPassword"
+              @focus="
+                accountClean = false;
+                passwordClean = true && inputPassword;
+              "
             >
             </el-input>
-
-            <div class="hide-password" v-if="passwordShow == false">
-              <el-input
-                type="password"
-                placeholder="密码"
-                @change = "passeordChange('P')"
-                :maxlength = "maxlengthP"
-                v-model="inputPassword"
-                @focus="accountClean = false;passwordClean = true && inputPassword"
-              >
-              </el-input>
-            </div>
-
-            <i class="input-icon-1  el-icon-circle-cross"
-               v-if="passwordClean"
-               @click="clearPassword()"></i>
-            <i class="input-icon-2 el-icon-minus" @click="passwordSeeClick()"></i>
-
           </div>
 
-          <p class="forget-password"><a href="javascript:void(0);" @click="goForgetPassword()">忘记密码？</a></p>
-          <p class="password-mistake" v-if="passwordMistake">
-            <span>
-              <i class="el-icon-information"></i>
-              用户名或密码错误，请重新输入或
-            </span>
-            <a href="javascript:void(0);" @click="goResetPassword()">重置密码</a></p>
-          <el-button :type="Info" @click="primaryGo()" :disabled="disabled" :loading="logining">登 录</el-button>
-          <p class="login-inquiry">还没有账号？<a href="javascript:void(0);" @click="goSignIn()">注册新账号</a></p>
+          <i
+            class="input-icon-1 el-icon-circle-cross"
+            v-if="passwordClean"
+            @click="clearPassword()"
+          ></i>
+          <i class="input-icon-2 el-icon-minus" @click="passwordSeeClick()"></i>
         </div>
 
+        <p class="forget-password">
+          <a href="javascript:void(0);" @click="goForgetPassword()"
+            >忘记密码？</a
+          >
+        </p>
+        <p class="password-mistake" v-if="passwordMistake">
+          <span>
+            <i class="el-icon-information"></i>
+            用户名或密码错误，请重新输入或
+          </span>
+          <a href="javascript:void(0);" @click="goResetPassword()">重置密码</a>
+        </p>
+        <el-button
+          :type="Info"
+          @click="primaryGo()"
+          :disabled="disabled"
+          :loading="logining"
+          >登 录</el-button
+        >
+        <p class="login-inquiry">
+          还没有账号？<a href="javascript:void(0);" @click="goSignIn()"
+            >注册新账号</a
+          >
+        </p>
       </div>
-      <div class="footer">
-        <p>©2022 bole-games</p>
-      </div>
+    </div>
+    <div class="footer">
+      <p>©2022 bole-games</p>
+    </div>
   </div>
 </template>
 
@@ -86,7 +116,7 @@ export default {
     }
   },
   watch: {
-    'inputAccount': function () {
+    inputAccount: function () {
       this.accountClean = false
       this.inputAccount = this.inputAccount.replace(/\D/g, '')
       if (this.inputAccount) {
@@ -111,7 +141,9 @@ export default {
     // eslint-disable-next-line vue/return-in-computed-property
     exitsVal: function () {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.ifExist = Number(Boolean(this.inputAccount)) + Number(Boolean(this.inputPassword))
+      this.ifExist =
+        Number(Boolean(this.inputAccount)) +
+        Number(Boolean(this.inputPassword))
     }
   },
   methods: {
@@ -145,9 +177,12 @@ export default {
 
         // NProgress.start();
         // this.inputAccount = 'demo'
-        var loginParams = { login_name: this.inputAccount, password: this.inputPassword }
+        var loginParams = {
+          login_name: this.inputAccount,
+          password: this.inputPassword
+        }
         console.log(loginParams, 'loginParams')
-        requestLogin(loginParams).then(data => {
+        requestLogin(loginParams).then((data) => {
           this.logining = false
           // NProgress.done();
           let { msg, code, token, name } = data
@@ -187,10 +222,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-a{
+a {
   text-decoration: none;
 }
-.login-wrap{
+.login-wrap {
   position: relative;
   top: 0;
   left: 0;
@@ -198,7 +233,7 @@ a{
   height: 100%;
   min-height: 700px;
   background-color: #ffffff;
-  .operation-content{
+  .operation-content {
     position: absolute;
     left: 50%;
     top: 45%;
@@ -206,14 +241,16 @@ a{
     margin-top: -170px;
     width: 340px;
     height: 340px;
-    .login-title{
+    .login-title {
       text-align: center;
       width: 100%;
       height: 70px;
     }
-    .login-body{
+    .login-body {
       position: relative;
-      .input-icon-0, .input-icon-1, .input-icon-2{
+      .input-icon-0,
+      .input-icon-1,
+      .input-icon-2 {
         font-size: 14px;
         cursor: pointer;
         position: absolute;
@@ -221,76 +258,76 @@ a{
         top: 44px;
         color: #bfcbd9;
       }
-      .password-input{
+      .password-input {
         position: relative;
-        .input-icon-1{
+        .input-icon-1 {
           right: 36px;
         }
         display: inline-block;
         width: 100%;
-        .hide-password{
+        .hide-password {
           display: inline-block;
           width: 100%;
         }
       }
-      .password-mistake{
+      .password-mistake {
         margin-top: 5px;
         width: 100%;
         text-align: center;
         font-size: 14px;
-        span{
+        span {
           color: #e0001b;
-          i{
+          i {
             transform: rotate(180deg);
           }
         }
-        a{
+        a {
           color: #359ef3;
         }
       }
-      .el-input{
+      .el-input {
         margin-top: 30px;
       }
-      .el-button{
+      .el-button {
         width: 100%;
         margin-bottom: 10px;
         /*background-color: #3c7dfc;*/
       }
-      .forget-password{
+      .forget-password {
         text-align: right;
         font-size: 14px;
         padding: 6px 0;
         margin: 0;
-        a{
+        a {
           color: #8492a6;
         }
       }
-      .login-inquiry{
+      .login-inquiry {
         text-align: center;
         color: #878787;
-        a{
+        a {
           color: #359ef3;
         }
       }
     }
   }
-  .footer{
+  .footer {
     position: absolute;
     left: 0;
     bottom: 0;
     width: 100%;
     height: 105px;
-    ul{
+    ul {
       padding: 0;
       margin: 0;
       width: 100%;
       text-align: center;
-      li{
+      li {
         display: inline-block;
         width: 134px;
         height: 15px;
         border-right: 2px #20a0ff solid;
-        a{
+        a {
           position: relative;
           top: -4px;
           color: #1f2d3d;
@@ -298,7 +335,7 @@ a{
         }
       }
     }
-    p{
+    p {
       position: absolute;
       left: 0;
       bottom: 23px;
@@ -311,20 +348,20 @@ a{
 }
 </style>
 <style lang="scss" >
-  .login-wrap{
-    .el-input{
+.login-wrap {
+  .el-input {
+    height: 40px;
+    .el-input__inner {
       height: 40px;
-      .el-input__inner{
-        height: 40px;
-      }
-    }
-    .el-button{
-      //font-weight: 100;
-      height: 40px;
-    }
-    .hide-password{
-      .el-input__inner{
-      }
     }
   }
+  .el-button {
+    //font-weight: 100;
+    height: 40px;
+  }
+  .hide-password {
+    .el-input__inner {
+    }
+  }
+}
 </style>
