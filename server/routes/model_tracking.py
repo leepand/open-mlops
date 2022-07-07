@@ -574,7 +574,6 @@ def get_model_files():
             "total": 1,
             "version": "v1.0"
         }
-
         return rsp.success(result)
     else:
         return rsp.success("/")

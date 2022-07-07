@@ -9,6 +9,7 @@ from mlopskit.core.errors import ModelsNotFound
 from mlopskit.core.library import LibrarySettings, ModelConfiguration, ModelLibrary
 from mlopskit.core.model import AbstractModel, AsyncModel
 from mlopskit.core.types import LibraryModelsType
+from gunicorn.app.base import BaseApplication
 
 logger = get_logger(__name__)
 
@@ -191,3 +192,30 @@ def create_mlopskit_app(models=None, required_models=None):
     router = MlopskitAutoAPIRouter(required_models=required_models, models=models)
     app.include_router(router)
     return app
+
+class APPServer(BaseApplication):
+    def __init__(self, app, options=None):
+        self.options = options or {}
+        self.application = app
+        super().__init__()
+
+    def load_config(self):
+        config = {key: value for key, value in self.options.items()
+                  if key in self.cfg.settings and value is not None}
+        for key, value in config.items():
+            self.cfg.set(key.lower(), value)
+        self.cfg.set("worker_class","uvicorn.workers.UvicornWorker")
+
+    def load(self):
+        return self.application
+    
+def serving(models,required_models,ops={}):
+    app = create_mlopskit_app(models = models,required_models=required_models)
+    workers = ops.get("workers",2)
+    port = ops.get("port",9000)
+    host = ops.get("host",'0.0.0.0')
+    _ops = {
+        'bind': '{0}:{1}'.format(host,port),
+        'workers': workers,
+    }
+    APPServer(app, _ops).run()

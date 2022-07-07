@@ -110,7 +110,7 @@ def process_files(directory_files, base_directory,exclude=[]):
             #code_content = highlight_filter(source)
         elif fname.endswith('.log') or fname.endswith('.txt') or fname.endswith('.json'):
             with open(file, 'rb') as f:
-                code_content = f.read()
+                code_content = f.read().decode()
         elif fname.endswith('.MD') or fname.endswith('.md'):
             with open(file, 'rb') as f:
                 md_text = f.read()
@@ -127,7 +127,7 @@ def process_files(directory_files, base_directory,exclude=[]):
                 code_css = head_css + code_css
                 code_content = code_css+html
         else:
-            code_content=""
+            code_content="该格式不支持"
         files.append({
             'name': file.name,
             'is_dir': file.is_dir(),
