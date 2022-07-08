@@ -59,7 +59,8 @@ class ModelDeploy(AbstractDataSet):
         Raises:
             DataSetError: When passed `flavor` does not exist.
         """
-        _pyfunc_workflow = None
+        self._pyfunc_workflow = None
+        self._logging_activated = True
         self._flavor = None
         self._load_args = load_args or {}
         self._save_args = save_args or {}
