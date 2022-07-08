@@ -20,7 +20,7 @@ import getpass
 
 MLMODEL_FILE_NAME = "MLmodel"
 
-class ModelDeploy(object):
+class ModelDeploy(MlflowAbstractModelDataSet):
     """Wrapper for saving, logging and loading for all MLflow model/data flavor."""
 
     def __init__(
