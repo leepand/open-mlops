@@ -12,7 +12,7 @@ from werkzeug.routing import Map, Rule
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.datastructures import Headers
 
-from _version import __version__
+from .version import __version__
 from abkit.api import participate, convert
 
 from abkit.config import CONFIG as cfg
