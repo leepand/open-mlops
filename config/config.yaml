@@ -1,0 +1,4 @@
+mlflow_local_server_uri: http://0.0.0.0:8904
+mlflow_remote_server_uri: http://0.0.0.0:8904
+mlops_art_basepath: /your/path/to/mlflow_art_path
+mlops_sqlite_db: /your/path/to/mlopsui.db

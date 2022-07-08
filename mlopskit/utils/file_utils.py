@@ -7,6 +7,7 @@ import sys
 import tarfile
 import gzip
 import tempfile
+import errno
 
 def relative_path_to_artifact_path(path):
     if os.path == posixpath:
@@ -106,3 +107,38 @@ def path_to_local_sqlite_uri(path):
     path = posixpath.abspath(pathname2url(os.path.abspath(path)))
     prefix = "sqlite://" if sys.platform == "win32" else "sqlite:///"
     return prefix + path
+
+def is_directory(name):
+    return os.path.isdir(name)
+
+
+def is_file(name):
+    return os.path.isfile(name)
+
+def exists(name):
+    return os.path.exists(name)
+
+def mkdir(root, name=None):
+    """
+    Make directory with name "root/name", or just "root" if name is None.
+    :param root: Name of parent directory
+    :param name: Optional name of leaf directory
+    :return: Path to created directory
+    """
+    target = os.path.join(root, name) if name is not None else root
+    try:
+        os.makedirs(target)
+    except OSError as e:
+        if e.errno != errno.EEXIST or not os.path.isdir(target):
+            raise e
+    return target
+
+
+def make_containing_dirs(path):
+    """
+    Create the base directory for a given file path if it does not exist; also creates parent
+    directories.
+    """
+    dir_name = os.path.dirname(path)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)

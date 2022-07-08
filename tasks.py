@@ -1,7 +1,9 @@
 from invoke import task, run
 import shutil
 from distutils import dir_util
+from mlopskit.utils.file_utils import make_containing_dirs
 
+make_containing_dirs('../mlflow_workspace')
 
 @task
 def backend(context):
@@ -16,7 +18,6 @@ def frontend(context):
     #dir_util.copy_tree("backend/app/templates/", "frontend/public/")
     run("cd frontend && npm run build")
     #run("cd frontend && npm run serve")
-
 
 @task
 def production(context):
@@ -40,14 +41,22 @@ def serve(context):
 @task
 def serve_art(context):
     print("####### RUN Artifacts SERVER #######")
-    with open('artifacts_server/run.sh',"w") as f:
+    with open('artifacts_server/run_server.sh',"w") as f:
         f.write("python app.py")
-    run("cd artifacts_server && pip install -r requirements.txt \
-    && chmod +x *.sh && nohup ./run.sh >run.log 2>&1 &")
+    run("cd artifacts_server && chmod +x *.sh && sh run.sh")
+@task
+def serve_mlflow_server(context):
+    print("####### RUN MLFLOW SERVER #######")
+    with open('../mlflow_workspace/run_mlflow_server.sh',"w") as f:
+        f.write("mlflow server  --default-artifact-root artifacts\
+        --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 -p 8904")
+    run("cd ../mlflow_workspace && chmod +x *.sh && \
+    nohup run_mlflow_server.sh >run_mlflow_server.log 2>&1 &")
 
 
 @task
 def buildAndServe(context):
     build(context)
     serve(context)
-    serve_art(context)
+    #serve_art(context)
+    #serve_mlflow_server(context)
