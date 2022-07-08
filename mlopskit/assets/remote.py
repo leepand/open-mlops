@@ -13,7 +13,7 @@ from structlog import get_logger
 from mlopskit.assets import errors
 from mlopskit.assets.drivers.abc import StorageDriver
 from mlopskit.assets.drivers.azure import AzureStorageDriver
-from mlopskit.assets.drivers.gcs import GCSStorageDriver
+#from mlopskit.assets.drivers.gcs import GCSStorageDriver
 from mlopskit.assets.drivers.local import LocalStorageDriver
 from mlopskit.assets.drivers.s3 import S3StorageDriver
 from mlopskit.assets.settings import AssetSpec
