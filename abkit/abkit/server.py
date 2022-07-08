@@ -20,7 +20,7 @@ from abkit.metrics import init_statsd
 from abkit.utils import to_bool
 
 try:
-    import abkit.utils.db as db
+    from  abkit import db
 except ConnectionError:
     print ("Redis is currently unavailable or misconfigured")
     sys.exit()
