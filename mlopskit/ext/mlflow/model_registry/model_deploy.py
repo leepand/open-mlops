@@ -8,6 +8,8 @@ from mlflow.tracking import MlflowClient
 from mlflow.exceptions import MlflowException
 
 from mlopskit.io import DataSetError
+from mlopskit.io import AbstractDataSet
+
 from mlopskit.ext.mlflow.model_registry.mlflow_abstract_model_dataset import (
     MlflowAbstractModelDataSet,
 )
@@ -20,12 +22,11 @@ import getpass
 
 MLMODEL_FILE_NAME = "MLmodel"
 
-class ModelDeploy(MlflowAbstractModelDataSet):
+class ModelDeploy(AbstractDataSet):
     """Wrapper for saving, logging and loading for all MLflow model/data flavor."""
 
     def __init__(
         self,
-        flavor: str,
         run_id: Optional[str] = None,
         user_id: Optional[str] = None,
         art_name: str = None,
@@ -45,8 +46,6 @@ class ModelDeploy(MlflowAbstractModelDataSet):
         During save, the model is first logged to MLflow.
         During load, the model is pulled from MLflow run with `run_id`.
         Args:
-            flavor (str): Built-in or custom MLflow model flavor module.
-                Must be Python-importable.
             run_id (Optional[str], optional): MLflow run ID to use to load
                 the model from or save the model to. Defaults to None.
             artifact_path (str, optional): the run relative path to
@@ -60,6 +59,7 @@ class ModelDeploy(MlflowAbstractModelDataSet):
         Raises:
             DataSetError: When passed `flavor` does not exist.
         """
+        self._flavor = None
         self._load_args = load_args or {}
         self._save_args = save_args or {}
         self._run_id = run_id
@@ -160,7 +160,7 @@ class ModelDeploy(MlflowAbstractModelDataSet):
             self._save_model_in_run(model)
 
     def _save_model_in_run(self, model):
-
+        
         if self._flavor == "mlflow.pyfunc":
             # PyFunc models utilise either `python_model` or `loader_module`
             # workflow. We we assign the passed `model` object to one of those keys
