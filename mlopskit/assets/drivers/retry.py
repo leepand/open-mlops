@@ -1,5 +1,5 @@
 import botocore
-import google
+#import google
 import requests
 from structlog import get_logger
 from tenacity import retry_if_exception, stop_after_attempt, wait_random_exponential

@@ -1,9 +1,9 @@
 import os
 from typing import Optional
 
-from google.api_core.exceptions import NotFound
-from google.cloud import storage
-from google.cloud.storage import Client
+#from google.api_core.exceptions import NotFound
+#from google.cloud import storage
+#from google.cloud.storage import Client
 from structlog import get_logger
 from tenacity import retry
 
