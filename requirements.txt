@@ -2,3 +2,4 @@ mlflow
 flask
 Flask-Login
 nbconvert
+fsspec
